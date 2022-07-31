@@ -9,9 +9,9 @@ services:
       - db
     command: [ "node", "/app/Server/lib/Game/cluster.js", "0", "1" ]
     restart: always
-    ports:
-      - 8496:8496
-      - 8080:8080
+    networks:
+      network:
+        ipv4_address: 172.30.0.2
   web:
     build: .
     volumes:
@@ -23,7 +23,10 @@ services:
       - db
       - game
     ports:
-      - 80:80
+      - 3100:80
+    networks:
+      network:
+        ipv4_address: 172.30.0.3
   db:
     build:
       context: .
@@ -33,8 +36,21 @@ services:
       POSTGRES_DB: main
     volumes:
       - db_data:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
+    networks:
+      network:
+        ipv4_address: 172.30.0.4
+  redis:
+    image: redis:alpine
+    command: redis-server --port 6379
+    networks:
+      network:
+        ipv4_address: 172.30.0.5
+
+networks:
+  network:
+    external: true
+    driver: bridge
+    name: kkutu_network
 
 volumes:
   kkutu_data:
